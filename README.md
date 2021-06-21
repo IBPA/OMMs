@@ -1,63 +1,53 @@
-# Title of the Project Goes Here
+# Optimal Mixed Meals (OMMs) for Maximum Glycan Information Content
+Design mixed meals automatically for maximizing the information content of their glycan compositions.
 
-Put a short description of what this project is about. You can optionally put figure like I did below. Usually, I find Figure 1 of the paper to be a good fit. I created ```images``` branch to store the all the images so that you can avoid them being in the master working tree. For more info and other ways to embed a image files to the README file, please refer to this [link](https://stackoverflow.com/questions/10189356/how-to-add-screenshot-to-readmes-in-github-repository). For more information on how to use markdown, please use this [link](https://guides.github.com/features/mastering-markdown/). You can use this repository as a template when creating your repository. Please use this [link](https://docs.github.com/en/github/creating-cloning-and-archiving-repositories/creating-a-repository-from-a-template) for more info on that. Finally, you can refer to the [LOVE repository](https://github.com/IBPA/LOVE) for sample.
+## Requirements
+* **[Gurobi](https://www.gurobi.com/)** (version ≥ 9.1)
+* **[R](https://www.r-project.org/)** (version ≥ 4.0.2)
+* **R Packages** gurobi, MaxPro, ggplot2, readxl, stringr, argparse
 
-![Figure 1](/../images/Figure1.jpg?raw=true)
+## 1. OMM Generation
+Design mixed meals to maximize the information content of glycan profiles. In other words, in terms of the glycan content, we want the meals to be most different from each other while also being most different from the individual foods. To run, use the following command (change the argument values as needed):
 
-## 1. Directories
+`./generate_OMMs.R --glycanDB glycanDB.csv --moistureDB moistureDB.xlsx --num-meals N [--max-meal-ingredients M] --output generated_OMMs.csv`
+### Arguments:
+* `--glycanDB filename.csv`: The glycan content profiles of individual foods when dried. The format is described in [./formats/glycanDB.txt](./formats/glycanDB.txt).
+* `--moistureDB filename.xlsx`: The moisture percentages of individual foods before drying. The format is described in [./formats/moistureDB.txt](./formats/moistureDB.txt).
+* `--max-meal-ingredients M` (optional): The maximum number of ingredients in each designed mixed meal.
+* `--num-meals N`: The number of mixed meals to design.
+* `--output filename.csv`: The designed OMMs where each mixed meal is defined by the individual food proportions that it includes. The format is described in [./formats/MMs.txt](./formats/MMs.txt).
 
-In this section, you should describe briefly what each directory contains. I don't want to enforce same directory format for everyone since every project is different. Key here is to name the directories specific yet succint as possible. Please look at famous repositories like [scikit-learn](https://github.com/scikit-learn/scikit-learn) or [freeCodeCamp](https://github.com/freeCodeCamp/freeCodeCamp) for some ideas.
 
-* <code>[data](./data)</code>: Contains all data files.
+## 2. OMM Selection
+Select a set of OMMs from candidate mixed meals, given a set of approved mixed meals. To run, use the following command (change the argument values as needed):
 
-## 2. Getting Started
+`./select_OMMs.R --glycanDB glycanDB.csv --moistureDB moistureDB.xlsx [--approved-meals approved_meals.csv] --candidate-meals candidate_meals.csv --num-meals N --output selected_OMMs.csv`
 
-Not all project is same. You can modify the headings below a little to be more suitable for your project. If you wish to release the repository as a package, please refer to this great [document](https://docs.google.com/document/d/1NZSE_JKInoYgkV7KUI4T5yO8QmFycwStMW_9PrR-IEE/edit) Fang created.
+### Arguments:
+* `--glycanDB filename.csv`: The glycan content profiles of individual foods when dried. The format is described in [./formats/glycanDB.txt](./formats/glycanDB.txt).
+* `--moistureDB filename.xlsx`: The moisture percentages of individual foods before drying. The format is described in [./formats/moistureDB.txt](./formats/moistureDB.txt).
+* `--num-meals N`: The number of mixed meals to select.
+* `--approved-meals filename.csv` (optional): The set of approved meals. The format is described in [./formats/MMs.txt](./formats/MMs.txt).
+* `--candidate-meals filename.csv`: The set of candidate meals to select from. The format is described in [./formats/MMs.txt](./formats/MMs.txt).
+* `--output filename.csv`: The selected OMMs where each mixed meal is defined by the individual food proportions that it includes. The format is described in [./formats/MMs.txt](./formats/MMs.txt).
 
-### 2a. Prerequisites
+## 3. OMM Visualization
+Visualize the expected glycan content of OMMs. *Figure1* will include a stacked barchart visualizing the glycan content of each OMM. *Figure2* will show the information content of the OMMs' expected glycan profiles when measured sequentially. To run, use the following command (change the argument values as needed):
 
-If you have some prerequisites such as python libraries or other tools that need to be installed in advance, you can specify them here. For instructions on how to run a code, always follow the format like the following:
+`./visualize_OMMs.R --glycanDB glycanDB.csv --moistureDB moistureDB.xlsx --OMMs OMMs.csv --output-dir ./resutls`
 
-```
-# Code should be formatted like this.
-python3 hello_world.py
-```
+### Arguments:
+* `--glycanDB filename.csv`: The glycan content profiles of individual foods when dried. The format is described in [./formats/glycanDB.txt](./formats/glycanDB.txt)
+* `--moistureDB filename.xlsx`: The moisture percentages of individual foods before drying. The format is described in [./formats/moistureDB.txt](./formats/moistureDB.txt)
+* `--OMMs filename.csv`: The OMMs to visualize. The format is described in [./formats/MMs.txt](./formats/MMs.txt).
+* `--output-dir dir_path`: The output directory for saving the generated figures.
 
-### 2b. Running
+## Support
+For any questions contact Ameen Eetemadi (eetemadi@ucdavis.edu).
 
-Instructions on how to run the code goes here. All inline code should be written like this `python3 hello_world.py`.
+## Licence
+See the [LICENSE](./LICENSE) file for license rights and limitations (Apache2.0).
 
-```
-some code
-```
-
-## 3. Authors
-
-* **Jason Youn** @ [https://github.com/jasonyoun](https://github.com/jasonyoun)
-
-## 4. Contact
-
-For any questions, please contact us at tagkopouloslab@ucdavis.edu.
-
-## 5. Citation
-
-Put citation here. Let's use the exactly same format that is used in our [lab page](http://tagkopouloslab.ucdavis.edu/?page_id=648).
-
-## 6. License
-
-This project is licensed under the GNU GPLv3 License. Please see the <code>[LICENSE](./LICENSE)</code> file for details.
-
-## 7. FAQ
-
-If you have an FAQ, you can put them here. If not needed, just removed this section.
-
-* How do I do this?
-	* You don't now how to do that?
-
-1. You can also number them like this.
-	* Say what?
-
-## 8. Acknowledgments
-
-* Acknowledgements go here.
-* If there are people beta tested the code, help with its writing, etc. add them here.
+## Acknowledgement
+This work was supported by the United States Department of
+Agriculture (USDA)/NSF AI Institute for Next Generation Food Systems (AIFS), USDA award number 2020-67021-32855.
