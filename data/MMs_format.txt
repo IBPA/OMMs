@@ -1,1 +1,2 @@
-Column Names: Description
+Each line describes one meal in the following format where ufid1 represents a unique food id and ufid1_frac represents the fraction of the meal from ufid1.
+ufid1:ufid1_frac,ufid2:ufid2_frac,...,ufidM:ufidM_frac
