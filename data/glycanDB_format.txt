@@ -1,0 +1,9 @@
+Column Names: Description
+Glycan_Ency_Name: name in the glycan encylopedia (“glycopedia”)
+Database Source: Database for the example food to rationalize selection of the glyopedia food entry (FNDDS-Ingredients, USDA Nutritional Phenotyping Study, or WWEIA 17/18)
+Database_Name: Food Name for the example food, used to rationalize selection for glycopedia food entry 
+Unique Identifier Code: glycopedia identifier code 
+Food.Preparation.Method: description of how food was prepared
+Detailed.Sample.Description: detailed name of food sample
+Simple.Name: simple food name 
+Mass.of.weighed.sample: mass of sample
