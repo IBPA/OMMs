@@ -1,1 +1,3 @@
-Column Names: Description
+Column Name: Description (The usual comma separated format)
+ufid: unique food id
+water_frac: water fraction of the food.

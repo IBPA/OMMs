@@ -1,4 +1,4 @@
-Column Names: Description
+Column Name: Description (The usual comma separated format)
 Glycan_Ency_Name: name in the glycan encylopedia (“glycopedia”)
 Database Source: Database for the example food to rationalize selection of the glyopedia food entry (FNDDS-Ingredients, USDA Nutritional Phenotyping Study, or WWEIA 17/18)
 Database_Name: Food Name for the example food, used to rationalize selection for glycopedia food entry 
