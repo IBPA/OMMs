@@ -5,6 +5,8 @@ library(readxl)
 library(stringr)
 library(gurobi)
 
+source("./src/common.R")
+
 get_args <- function() {
   parser <- ArgumentParser(description = "Design mixed meals to maximize the information content of glycan profiles.")
   parser$add_argument("--glycanDB", required=TRUE,
@@ -20,44 +22,11 @@ get_args <- function() {
   
   testargs <- c("--glycanDB", "./data/draft_mono_for_ameen_060321.csv", 
                 "--moistureDB", "./data/% moisture content for all foods.xlsx", 
-                "--num-meals", 10, 
+                "--num-meals", 50, 
                 "--output", "./results/gen_OMMS.csv")
   args <- parser$parse_args(testargs)
   
   return(args)
-}
-
-load_data <- function(data_file, metadata_file){
-  # A) Load data
-  df <- read.table(data_file, sep = ",", quote = '"', header = TRUE)
-  df_data <- df[,MONO_COLUMNS]
-  df_data[is.na(df_data)] <- 0
-  df[,MONO_COLUMNS] <- df_data
-  colnames(df)[4] <- "uid"
-  
-  # B) Load water content metadata
-  df_meta <- read_excel(metadata_file)
-  df_meta <- df_meta[,c("Unique Identifier Code","% water content")]
-  colnames(df_meta) <- c("uid", "water")
-  df_meta$uid <- as.numeric(str_remove(df_meta$uid, "^0+"))
-  df_meta$dry <- (100-df_meta$water)/100
-  df_meta$water <- NULL
-  
-  # C) Incorporate dry content % of each food into the corresponding glycan content vector
-  df_comb <- merge(df, df_meta, by = "uid")
-  df_comb[,MONO_COLUMNS] <- df_comb[,MONO_COLUMNS] * df_comb$dry
-  #  ***** Skip this for now, due to issue in water % (not between 0-100)
-  
-  # D) Min-Max Normalization
-  scale_minmax <- function(x){
-    (x- min(x)) /(max(x)-min(x))
-  }
-  df_data_scaled <- as.data.frame(lapply(df_data, scale_minmax))
-  df[,MONO_COLUMNS] <- df_data_scaled
-  df[is.na(df)] <- 0
-  
-  
-  return(df[,c("uid", MONO_COLUMNS)])
 }
 
 get_proportions <- function(df_data, target){
@@ -87,27 +56,11 @@ get_proportions <- function(df_data, target){
   return(result$x[1:n])
 }
 
-save_MMs <- function(df_food_proportions, filename) {
-  # Write the non-zero proportions to the file for each meal.
-  nz_proportions <- apply(df_food_proportions, 1, FUN = function(x){x[x!=0]})
-  
-  lines <- c()
-  for (meal_idx in 1:length(nz_proportions)) {
-    cur_meal_props <- nz_proportions[[meal_idx]]
-    line_str <- paste(sprintf("%s:%.2f", names(cur_meal_props), unname(cur_meal_props)), collapse = ",")
-    lines <- c(lines, line_str)
-  }
-  writeLines(lines, filename)
-}
-
-
 args <- get_args()
-
-# Constants
-MONO_COLUMNS <- c('Glucose', 'Galactose', 'Fructose', 'Xylose', 'Arabinose', 'Fucose', 'Rhamnose', 'GlcA', 'GalA', 'GlcNAc', 'GalNAc', 'Mannose', 'Allose', 'Ribose')
 
 # 1) Load data
 df <- load_data(args$glycanDB, args$moistureDB)
+df[,MONO_COLUMNS] <- minmax_normalize(df[,MONO_COLUMNS])
 df_data <- df[,MONO_COLUMNS]
 
 # 2) Generate design

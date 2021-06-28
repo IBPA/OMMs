@@ -4,7 +4,7 @@ Design mixed meals automatically for maximizing the information content of their
 ## Requirements
 * **[Gurobi](https://www.gurobi.com/)** (version ≥ 9.1)
 * **[R](https://www.r-project.org/)** (version ≥ 4.0.2)
-* **R Packages** gurobi, MaxPro, ggplot2, readxl, stringr, argparse
+* **R Packages** gurobi, MaxPro, ggplot2, readxl, stringr, argparse, infotheo, reshape2
 
 ## 1. OMM Generation
 Design mixed meals to maximize the information content of glycan profiles. In other words, in terms of the glycan content, we want the meals to be most different from each other while also being most different from the individual foods. To run, use the following command (change the argument values as needed):
