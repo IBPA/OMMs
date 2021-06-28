@@ -1,4 +1,4 @@
-# Optimal Mixed Meals (OMMs) for Maximum Glycan Information Content
+# Design Mixed Meals With Heterogeneous Glycan Content
 Design mixed meals automatically for maximizing the information content of their glycan compositions.
 
 ## Requirements
@@ -7,7 +7,7 @@ Design mixed meals automatically for maximizing the information content of their
 * **R Packages** gurobi, MaxPro, ggplot2, readxl, stringr, argparse, infotheo, reshape2
 
 ## 1. OMM Generation
-Design mixed meals to maximize the information content of glycan profiles. In other words, in terms of the glycan content, we want the meals to be most different from each other while also being most different from the individual foods. To run, use the following command (change the argument values as needed):
+Design optimal mixed meals (OMMs) to maximize the information content of glycan profiles. In other words, in terms of the glycan content, we want the meals to be most different from each other while also being most different from the individual foods. To run, use the following command (change the argument values as needed):
 
 `./generate_OMMs.R --glycanDB glycanDB.csv --moistureDB moistureDB.xlsx --num-meals N [--max-meal-ingredients M] --output generated_OMMs.csv`
 ### Arguments:
