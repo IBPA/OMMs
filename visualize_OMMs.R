@@ -63,7 +63,6 @@ i_numbers <- 1:nrow(df_vectors_all)
 for (i in i_numbers){
   df_vectors_cur <- df_vectors_all[1:i,]
   info_cur <- entropy(df_vectors_cur)
-  print(info_cur)
   infos <- c(infos, info_cur)
 }
 

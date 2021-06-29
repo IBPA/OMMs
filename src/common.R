@@ -66,7 +66,6 @@ get_friendly_food_names <- function(uids, data_file){
 }
 
 load_MMs <- function(filename) {
-  filename <- args$OMMs
   all_lines <- str_split(readLines(filename), ",")
   fids <- unique(unlist(unname(data.frame(str_split(unlist(all_lines), ":"))[1,])))
   num_meals <- length(all_lines)

@@ -1,6 +1,7 @@
 #!/usr/bin/env Rscript
 suppressPackageStartupMessages(library("argparse"))
 library(stringr)
+
 source("./src/common.R")
 
 get_args <- function() {
