@@ -39,8 +39,7 @@ rownames(df_food_vectors) <- df_food_vectors$uid
 MM_vectors <- MMs %*% data.matrix(df_food_vectors[colnames(MMs), MONO_COLUMNS])
 
 # 3) Plot stacked bar-charts of mixed meals
-df_MM <- minmax_normalize(data.frame(MM_vectors))
-df_MM <- data.frame(t(apply(df_MM, 1, FUN = function(x) {x/sum(x)})))
+df_MM <- data.frame(MM_vectors)
 df_MM$id <- 1:nrow(df_MM)
 df_MM_melt <- melt(df_MM, measure.vars=MONO_COLUMNS, value.name = "Quantity", variable.name = "Glycan")
 gPlot_bars <- ggplot(df_MM_melt, aes(x=id, y=Quantity, fill=Glycan))+
@@ -55,8 +54,8 @@ ggsave("./results/Fig1.png", gPlot_bars, dpi = 400, width=8 , height = 4)
 
 
 # 4) Calculate information content iteratively
-df_vectors_all <- rbind(df_food_vectors[,MONO_COLUMNS], data.frame(MM_vectors))
-df_vectors_all <-minmax_normalize(df_vectors_all)
+df_vectors_all <- data.frame(MM_vectors)
+df_vectors_all <- minmax_normalize(df_vectors_all)
 df_vectors_all <- discretize(df_vectors_all, disc = "equalwidth")
 
 infos <- c()
@@ -70,15 +69,24 @@ for (i in i_numbers){
 
 # 5) Plot the information content of inidividual foods and mixed meals
 df_infos <- data.frame(iter=i_numbers, info=infos)
-gPlot <- ggplot(df_infos, aes(x=iter-nrow(df_food_vectors), y=infos))+
+gPlot <- ggplot(df_infos, aes(x=iter, y=infos))+
           geom_point(size=.7)+
           geom_line()+
-          geom_text(x=nrow(MMs)/2, y=0, label=sprintf("%d mixed meals",nrow(MMs)))+
-          geom_text(x=-nrow(df_food_vectors)/2, y=0, label=sprintf("%d individual foods",nrow(df_food_vectors)))+
-          geom_vline(xintercept=0, linetype="dashed", color = "red")+
-          scale_x_continuous("", breaks = c())+
-          scale_y_continuous("Glycan information content (entropy)")+
+          scale_x_continuous("Mixed meal ids")+
+          scale_y_continuous("Glycan information content (entropy)", breaks = 0:round(max(df_infos$info)))+
           my_base_theme
 print(gPlot)
 ggsave("./results/Fig2.pdf", gPlot, dpi = 400, width=8 , height = 4)
 ggsave("./results/Fig2.png", gPlot, dpi = 400, width=8 , height = 4)
+
+# 6) Histogram
+df_hist <- data.frame(id=1:nrow(MMs), count = rowSums(MMs!=0))
+gPlot_hist <- ggplot(df_hist, aes(count))+
+                geom_histogram( colour="black", fill=unname(colors_assigned["A"]), binwidth = 1)+
+                scale_x_continuous("Number of foods in the mixed meal", limits = c(1, max(df_hist$count)+1))+
+                scale_y_continuous("Number of mixed meals")+
+                my_base_theme
+mean(df_hist$count)
+print(gPlot_hist)
+ggsave("./results/Fig3.pdf", gPlot_hist, dpi = 400, width=8 , height = 4)
+ggsave("./results/Fig3.png", gPlot_hist, dpi = 400, width=8 , height = 4)

@@ -14,7 +14,17 @@ load_data <- function(data_file, metadata_file){
   df_meta <- df_meta[,c("Unique Identifier Code","% water content")]
   colnames(df_meta) <- c("uid", "water")
   df_meta$uid <- as.numeric(str_remove(df_meta$uid, "^0+"))
+  
+  uids_invalid_water_content <- unlist(df_meta[is.na(df_meta$water) | df_meta$water<0 | df_meta$water>100, c("uid") ], use.names = FALSE)
+  if (length(uids_invalid_water_content)>0){
+    uids_str <- paste(uids_invalid_water_content, collapse = ",")
+    warning(sprintf("Some foods have invalid water content (not between 0-100). Corresponding records with missing values will be removed and the water content of the rest will be clamped to be in range. The uids are: \n%s", uids_str))
+  }
+  
   df_meta$dry <- (100-df_meta$water)/100
+  df_meta$dry <- pmin(pmax(df_meta$dry, 0.0), 1.0) # Clamp the values
+  df_meta <- df_meta[!is.na(df_meta$dry),] # Remove missing value records
+  
   df_meta$water <- NULL
   
   # C) Incorporate dry content % of each food into the corresponding glycan content vector
@@ -22,7 +32,7 @@ load_data <- function(data_file, metadata_file){
   df_comb[,MONO_COLUMNS] <- df_comb[,MONO_COLUMNS] * df_comb$dry
   #  ***** Skip this for now, due to issue in water % (not between 0-100)
   
-  return(df[,c("uid", MONO_COLUMNS)])
+  return(df_comb[,c("uid", MONO_COLUMNS)])
 }
 
 minmax_normalize <- function(df_data){
@@ -46,6 +56,13 @@ save_MMs <- function(df_food_proportions, filename) {
     lines <- c(lines, line_str)
   }
   writeLines(lines, filename)
+}
+
+get_friendly_food_names <- function(uids, data_file){
+  df <- read.table(data_file, sep = ",", quote = '"', header = TRUE)
+  df_names <- df[df$Unique.Identifier.Code %in% uids, c("Unique.Identifier.Code", "Simple.name")]
+  rownames(df_names) <- df_names$Unique.Identifier.Code
+  return(unname(df_names[uids, c("Simple.name")]))
 }
 
 load_MMs <- function(filename) {
