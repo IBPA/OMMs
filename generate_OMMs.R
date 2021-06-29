@@ -6,6 +6,7 @@ library(stringr)
 library(gurobi)
 
 source("./src/common.R")
+DEV_MODE <- TRUE
 
 get_args <- function() {
   parser <- ArgumentParser(description = "Design mixed meals to maximize the information content of glycan profiles.")
@@ -24,9 +25,10 @@ get_args <- function() {
                 "--moistureDB", "./data/% moisture content for all foods.xlsx", 
                 "--num-meals", 50, 
                 "--output", "./results/gen_OMMS.csv")
-  args <- parser$parse_args(testargs)
-  
-  return(args)
+  if (DEV_MODE){
+    return(parser$parse_args(testargs))
+  }
+  return(parser$parse_args())
 }
 
 get_proportions <- function(df_data, target){

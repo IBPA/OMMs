@@ -7,6 +7,7 @@ library(scales)
 
 source("./src/common.R")
 source("./src/theme_util.R")
+DEV_MODE <- TRUE
 
 get_args <- function() {
   parser <- ArgumentParser(description = "Visualize the expected glycan content of OMMs.")
@@ -23,9 +24,10 @@ get_args <- function() {
                 "--moistureDB", "./data/% moisture content for all foods.xlsx", 
                 "--OMMs", "./results/gen_OMMS.csv", 
                 "--output-dir", "./results/")
-  args <- parser$parse_args(testargs)
-  
-  return(args)
+  if (DEV_MODE){
+    return(parser$parse_args(testargs))
+  }
+  return(parser$parse_args())
 }
 
 args <- get_args()
