@@ -1,4 +1,6 @@
 #!/usr/bin/env Rscript
+#' Visualize the expected glycan content of OMMs.
+
 suppressPackageStartupMessages(library("argparse"))
 library(infotheo)
 library(ggplot2)
@@ -9,6 +11,7 @@ source("./src/common.R")
 source("./src/theme_util.R")
 DEV_MODE <- TRUE
 
+# Parse and return command line arguments of this script (return defaults if DEV_MODE is TRUE).
 get_args <- function() {
   parser <- ArgumentParser(description = "Visualize the expected glycan content of OMMs.")
   parser$add_argument("--glycanDB", required=TRUE,
@@ -34,7 +37,7 @@ args <- get_args()
 
 # 1) Load data
 MMs <- load_MMs(args$OMMs)
-df_food_vectors <- load_data(args$glycanDB, args$moistureDB)
+df_food_vectors <- load_food_data(args$glycanDB, args$moistureDB)
 rownames(df_food_vectors) <- df_food_vectors$uid
 
 # 2) Calculate the glycan vectors of mixed meals
@@ -80,14 +83,14 @@ print(gPlot)
 ggsave("./results/Fig2.pdf", gPlot, dpi = 400, width=8 , height = 4)
 ggsave("./results/Fig2.png", gPlot, dpi = 400, width=8 , height = 4)
 
-# 6) Histogram
+# 6) Histogram for number of foods used in the mixed-meals
 df_hist <- data.frame(id=1:nrow(MMs), count = rowSums(MMs!=0))
 gPlot_hist <- ggplot(df_hist, aes(count))+
                 geom_histogram( colour="black", fill=unname(colors_assigned["A"]), binwidth = 1)+
                 scale_x_continuous("Number of foods in the mixed meal", limits = c(1, max(df_hist$count)+1))+
                 scale_y_continuous("Number of mixed meals")+
                 my_base_theme
-mean(df_hist$count)
+sprintf("Mixed meals use an average %.2f foods.", mean(df_hist$count))
 print(gPlot_hist)
 ggsave("./results/Fig3.pdf", gPlot_hist, dpi = 400, width=8 , height = 4)
 ggsave("./results/Fig3.png", gPlot_hist, dpi = 400, width=8 , height = 4)

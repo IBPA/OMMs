@@ -1,4 +1,6 @@
 #!/usr/bin/env Rscript
+#' Select a set of OMMs from candidate mixed meals, given a set of approved mixed meals.
+
 suppressPackageStartupMessages(library("argparse"))
 library(infotheo)
 library(ggplot2)
@@ -9,8 +11,8 @@ source("./src/common.R")
 source("./src/theme_util.R")
 DEV_MODE <- TRUE
 
+# Parse and return command line arguments of this script (return defaults if DEV_MODE is TRUE).
 get_args <- function() {
-  #./select_OMMs.R --glycanDB glycanDB.csv --moistureDB moistureDB.xlsx [--approved-meals approved_meals.csv] --candidate-meals candidate_meals.csv --num-meals N --output selected_OMMs.csv
   parser <- ArgumentParser(description = "Select a set of OMMs from candidate mixed meals, given a set of approved mixed meals.")
   parser$add_argument("--glycanDB", required=TRUE,
                       help="A .csv file containing glycan content profiles of individual foods when dried.")
@@ -29,7 +31,7 @@ get_args <- function() {
                 "--moistureDB", "./data/% moisture content for all foods.xlsx", 
                 "--candidate-meals", "./results/cand_OMMS.csv",
                 "--approved-meals", "./results/appr_OMMS.csv", 
-                "--num-meals", 20, 
+                "--num-meals", 10, 
                 "--output", "./results/sel_OMMs.csv")
 
   if (DEV_MODE){
@@ -41,7 +43,7 @@ get_args <- function() {
 args <- get_args()
 
 # 1) Load data
-df_food_vectors <- load_data(args$glycanDB, args$moistureDB)
+df_food_vectors <- load_food_data(args$glycanDB, args$moistureDB)
 rownames(df_food_vectors) <- df_food_vectors$uid
 cand_MMs <- load_MMs(args$candidate_meals)
 appr_MMs <- matrix(0,ncol = 1, nrow = 1, dimnames = list(1,df_food_vectors$uid[1])) # just an empty meal
@@ -68,6 +70,6 @@ cand_vec <- unname(apply(cand_MM_vectors, 1, function(x){paste(x, collapse = ","
 idx_selected_meals <- match(design_vec, cand_vec)
 selected_MMs <- cand_MMs[idx_selected_meals,]
 
-# 5) Save
+# 6) Save the selected mixed meals
 save_MMs(selected_MMs, args$output)
 
