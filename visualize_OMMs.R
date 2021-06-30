@@ -43,25 +43,37 @@ rownames(df_food_vectors) <- df_food_vectors$uid
 # 2) Calculate the glycan vectors of mixed meals
 MM_vectors <- MMs %*% data.matrix(df_food_vectors[colnames(MMs), MONO_COLUMNS])
 
-# 3) Plot stacked bar-charts of mixed meals
+# 3.A) Plot stacked bar-charts of mixed meals
 df_MM <- data.frame(MM_vectors)
 df_MM$id <- 1:nrow(df_MM)
 df_MM_melt <- melt(df_MM, measure.vars=MONO_COLUMNS, value.name = "Quantity", variable.name = "Glycan")
 gPlot_bars <- ggplot(df_MM_melt, aes(x=id, y=Quantity, fill=Glycan))+
           geom_bar(stat = "identity")+
           scale_x_continuous("Meal ID")+
-          scale_y_continuous("Glycan Proportions")+
+          scale_y_continuous("Glycan weight per mg of wet sample")+
           my_base_theme
 
 print(gPlot_bars)
-ggsave("./results/Fig1.pdf", gPlot_bars, dpi = 400, width=8 , height = 4)
-ggsave("./results/Fig1.png", gPlot_bars, dpi = 400, width=8 , height = 4)
+ggsave("./results/Fig1_A.pdf", gPlot_bars, dpi = 400, width=8 , height = 4)
+ggsave("./results/Fig1_A.png", gPlot_bars, dpi = 400, width=8 , height = 4)
 
+# 3.B) Plot stacked bar-charts of mixed meals (proportions)
+df_MM <- data.frame(MM_vectors)
+df_MM$id <- 1:nrow(df_MM)
+df_MM_melt <- melt(df_MM, measure.vars=MONO_COLUMNS, value.name = "Quantity", variable.name = "Glycan")
+gPlot_bars <- ggplot(df_MM_melt, aes(x=id, y=Quantity, fill=Glycan))+
+  geom_bar(stat = "identity", position = "fill")+
+  scale_x_continuous("Meal ID")+
+  scale_y_continuous("Glycan %weight per mg of wet sample", labels = scales::percent)+
+  my_base_theme
+print(gPlot_bars)
+ggsave("./results/Fig1_B.pdf", gPlot_bars, dpi = 400, width=8 , height = 4)
+ggsave("./results/Fig1_B.png", gPlot_bars, dpi = 400, width=8 , height = 4)
 
 # 4) Calculate information content iteratively
 df_vectors_all <- data.frame(MM_vectors)
 df_vectors_all <- minmax_normalize(df_vectors_all)
-df_vectors_all <- discretize(df_vectors_all, disc = "equalwidth")
+df_vectors_all <- discretize(df_vectors_all, disc = "equalwidth", nbins = 7)
 
 infos <- c()
 i_numbers <- 1:nrow(df_vectors_all)

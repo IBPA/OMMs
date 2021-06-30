@@ -26,7 +26,8 @@ get_args <- function() {
   
   testargs <- c("--glycanDB", "./data/draft_mono_for_ameen_060321.csv", 
                 "--moistureDB", "./data/% moisture content for all foods.xlsx", 
-                "--num-meals", 10,
+                "--num-meals", 50,
+                "--max-meal-ingredients", 5,
                 "--output", "./results/gen_OMMS.csv")
   if (DEV_MODE){
     return(parser$parse_args(testargs))
@@ -80,17 +81,33 @@ df[,MONO_COLUMNS] <- minmax_normalize(df[,MONO_COLUMNS])
 df_food_glycans <- df[,MONO_COLUMNS]
 rownames(df_food_glycans) <- df$uid
 
-# 2) Generate design using MaxPro. A design here is the hypothetical glycan vector.
+# 2) If max-meal-ingredients is set, include only foods with maximum difference in their glycan content
+if(length(args$max_meal_ingredients)){
+  # 2.1) Reorder foods to maximize the difference of their glycan content
+  D_new <- MaxProRunOrder(df_food_glycans)
+  df_new_D <- data.frame(D_new$Design[1:args$max_meal_ingredients,]) # keep only the top foods
+  df_new_D <- df_new_D[df_new_D$X1,] # Ensure the order is correct
+  df_new_D$X1 <- NULL # Remove first column as it determines the order only
+  colnames(df_new_D) <- MONO_COLUMNS
+  
+  # 2.2) Identify and assign the correct food uids as rownames
+  design_vec <- unname(apply(df_new_D, 1, function(x){paste(x, collapse = ",")}))
+  all_vec <- unname(apply(df_food_glycans, 1, function(x){paste(x, collapse = ",")}))
+  idx_selected_meals <- match(design_vec, all_vec)
+  df_food_glycans <- df_food_glycans[idx_selected_meals,]
+}
+
+
+# 3) Generate design using MaxPro. A design here is the hypothetical glycan vector.
 #    The goal here is to generate a set of glycan vectors that are very different from each other.
-# 2.1) Ignore columns that have 0 variance
+# 3.1) Ignore columns that have 0 variance and reorder
 non_const_columns <- MONO_COLUMNS[(sapply(df_food_glycans, var) != 0)]
-dim <- length(non_const_columns)
-# 2.2) Create an initial design (generate more than needed).
-D_init <- MaxProLHD(args$num_meals*2, dim)$Design
-# 2.3) Optimize the initialized design.
+# 3.2) Create an initial design (generate more than needed), ignore const columns.
+D_init <- MaxProLHD(args$num_meals*2, length(non_const_columns))$Design
+# 3.3) Optimize the initialized design.
 D <- MaxPro(D_init)
 
-# 3) Select best design
+# 4) Select best design
 D_all <- MaxProRunOrder(D$Design) # Select N new designs given the data
 df_new_D <- data.frame(D_all$Design)
 df_new_D <- df_new_D[df_new_D$X1,] # Ensure the order is correct
@@ -100,20 +117,20 @@ df_design <- data.frame(matrix(0, nrow(df_new_D), length(MONO_COLUMNS)))
 colnames(df_design) <- MONO_COLUMNS
 df_design[,non_const_columns] <- df_new_D[,non_const_columns]
 
-# 4) Find a mixed-meal (i.e. food proportions) for each design considering that
+# 5) Find a mixed-meal (i.e. food proportions) for each design considering that
 #    the glycan content of a mixed-meal is additive with respect to the 
 #    proportions of its constituent foods.
-df_food_proportions <- data.frame(matrix(0, nrow(df_design), nrow(df)))
-colnames(df_food_proportions) <- df$uid
+df_food_proportions <- data.frame(matrix(0, nrow(df_design), nrow(df_food_glycans)))
+colnames(df_food_proportions) <- rownames(df_food_glycans)
 for(i in 1:nrow(df_design)){
   df_food_proportions[i,] <- get_proportions(df_food_glycans, df_design[i,])
 }
 
-# 5) Calculate the glycan content of the designed mixed-meals above to select 
+# 6) Calculate the glycan content of the designed mixed-meals above to select 
 #    the best set of mixed-meals amongst them. Note that the glycan content of
 #    a given mixed meal, may not exactly add up to the designed target glycan
 #    content since the corresponding LP may have non-zero error. 
-# 5.A) Calculate the glycan vectors of mixed meals, then reorder accordingly to select the top ones
+# 6.A) Calculate the glycan vectors of mixed meals, then reorder accordingly to select the top ones
 MM_vectors <- data.matrix(df_food_proportions) %*% data.matrix(df_food_glycans[colnames(df_food_proportions), MONO_COLUMNS])
 MM_vectors_reorder <- MaxProRunOrder(MM_vectors)
 df_new_D <- data.frame(MM_vectors_reorder$Design)
@@ -123,15 +140,15 @@ df_design <- data.frame(matrix(0, nrow(df_new_D), length(MONO_COLUMNS)))
 colnames(df_design) <- MONO_COLUMNS
 df_design[,non_const_columns] <- df_new_D[,non_const_columns]
 
-# 5.B) Find food proportions for each design (considering additive model).
+# 6.B) Find food proportions for each design (considering additive model).
 #      TODO: there is alternative way, it is done like this by resolving the LPs
 #            for convenience of coding.
-df_food_proportions <- data.frame(matrix(0, args$num_meals, nrow(df)))
-colnames(df_food_proportions) <- df$uid
+df_food_proportions <- data.frame(matrix(0, args$num_meals, nrow(df_food_glycans)))
+colnames(df_food_proportions) <- rownames(df_food_glycans)
 for(i in 1:args$num_meals){
   df_food_proportions[i,] <- get_proportions(df_food_glycans, df_design[i,])
 }
 
-# 6) Save the designed mixed meals
+# 7) Save the designed mixed meals
 save_MMs(df_food_proportions, args$output)
 
