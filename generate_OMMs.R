@@ -1,6 +1,8 @@
 #!/usr/bin/env Rscript
+#' Design mixed meals to maximize the information content of glycan profiles.
+
 suppressPackageStartupMessages(library("argparse"))
-library(MaxPro) # MaxPro, is considered a space filling design
+library(MaxPro)
 library(readxl)
 library(stringr)
 library(gurobi)
@@ -8,6 +10,7 @@ library(gurobi)
 source("./src/common.R")
 DEV_MODE <- TRUE
 
+# Parse and return command line arguments of this script (return defaults if DEV_MODE is TRUE).
 get_args <- function() {
   parser <- ArgumentParser(description = "Design mixed meals to maximize the information content of glycan profiles.")
   parser$add_argument("--glycanDB", required=TRUE,
@@ -23,7 +26,7 @@ get_args <- function() {
   
   testargs <- c("--glycanDB", "./data/draft_mono_for_ameen_060321.csv", 
                 "--moistureDB", "./data/% moisture content for all foods.xlsx", 
-                "--num-meals", 50, 
+                "--num-meals", 10,
                 "--output", "./results/gen_OMMS.csv")
   if (DEV_MODE){
     return(parser$parse_args(testargs))
@@ -31,20 +34,29 @@ get_args <- function() {
   return(parser$parse_args())
 }
 
-get_proportions <- function(df_data, target){
-  n <- nrow(df_data)
-  d <- ncol(df_data)
+# Given the 'df_food_glycans', find a mixed meal (i.e. proportions of each food),
+# with a glycan content that is most similar to the 'target_glycans' specified.
+get_proportions <- function(df_food_glycans, target_glycans){
+  # 1) initialize the dimensions
+  n <- nrow(df_food_glycans) # Number of foods
+  d <- ncol(df_food_glycans) # Number of glycans
   
+  # 2) Define the linear programming (LP) problem
+  # 2.1) Construct the 'a' vector used in the LP objective.
   a <- c(rep(0, n), rep(1, d), rep(1, d))
   
-  A <- t(df_data)
+  # 2.2) Construct the 'G' matrix used in the LP equality constraints.
+  A <- t(df_food_glycans)
   G <- cbind(A, diag(1, d, d), diag(-1, d, d))
   G <- rbind(G, c(rep(1, n), rep(0, d), rep(0, d)))
   
-  g <- c(t(target), 1)
+  # 2.3) Construct the 'g' vector used in the right-hand-side of LP equality constraints.
+  g <- c(t(target_glycans), 1)
   
+  # 2.4) Construct the 'l' vector used as the lower-bound for the variable constraints.
   l <- rep(0, n + 2*d)
   
+  # 3) Setup the Gurobi model based on the LP that is defined above.
   model = list()
   model$A <- G
   model$rhs <- g
@@ -53,23 +65,29 @@ get_proportions <- function(df_data, target){
   model$lb <- l
   model$modelsense <- "min"
   
+  # 4) Solve the defined LP using Gurobi
   result <- gurobi(model)
   
+  # 5) Return the LP solution. Note, we use the first portion (i.e. 1:n) as the rest represent the minimized errors.
   return(result$x[1:n])
 }
 
 args <- get_args()
 
-# 1) Load data
-df <- load_data(args$glycanDB, args$moistureDB)
+# 1) Load food data
+df <- load_food_data(args$glycanDB, args$moistureDB)
 df[,MONO_COLUMNS] <- minmax_normalize(df[,MONO_COLUMNS])
-df_data <- df[,MONO_COLUMNS]
-rownames(df_data) <- df$uid
+df_food_glycans <- df[,MONO_COLUMNS]
+rownames(df_food_glycans) <- df$uid
 
-# 2) Generate design
-non_const_columns <- MONO_COLUMNS[(sapply(df_data, var) != 0)]
-dim <- length(non_const_columns) # ignore columns that have 0 variance
-D_init <- MaxProLHD(args$num_meals*2, dim)$Design # Generate more than needed
+# 2) Generate design using MaxPro. A design here is the hypothetical glycan vector.
+#    The goal here is to generate a set of glycan vectors that are very different from each other.
+# 2.1) Ignore columns that have 0 variance
+non_const_columns <- MONO_COLUMNS[(sapply(df_food_glycans, var) != 0)]
+dim <- length(non_const_columns)
+# 2.2) Create an initial design (generate more than needed).
+D_init <- MaxProLHD(args$num_meals*2, dim)$Design
+# 2.3) Optimize the initialized design.
 D <- MaxPro(D_init)
 
 # 3) Select best design
@@ -82,15 +100,21 @@ df_design <- data.frame(matrix(0, nrow(df_new_D), length(MONO_COLUMNS)))
 colnames(df_design) <- MONO_COLUMNS
 df_design[,non_const_columns] <- df_new_D[,non_const_columns]
 
-# 4) Find food proportions for each design (considering additive model)
+# 4) Find a mixed-meal (i.e. food proportions) for each design considering that
+#    the glycan content of a mixed-meal is additive with respect to the 
+#    proportions of its constituent foods.
 df_food_proportions <- data.frame(matrix(0, nrow(df_design), nrow(df)))
 colnames(df_food_proportions) <- df$uid
 for(i in 1:nrow(df_design)){
-  df_food_proportions[i,] <- get_proportions(df_data, df_design[i,])
+  df_food_proportions[i,] <- get_proportions(df_food_glycans, df_design[i,])
 }
 
+# 5) Calculate the glycan content of the designed mixed-meals above to select 
+#    the best set of mixed-meals amongst them. Note that the glycan content of
+#    a given mixed meal, may not exactly add up to the designed target glycan
+#    content since the corresponding LP may have non-zero error. 
 # 5.A) Calculate the glycan vectors of mixed meals, then reorder accordingly to select the top ones
-MM_vectors <- data.matrix(df_food_proportions) %*% data.matrix(df_data[colnames(df_food_proportions), MONO_COLUMNS])
+MM_vectors <- data.matrix(df_food_proportions) %*% data.matrix(df_food_glycans[colnames(df_food_proportions), MONO_COLUMNS])
 MM_vectors_reorder <- MaxProRunOrder(MM_vectors)
 df_new_D <- data.frame(MM_vectors_reorder$Design)
 df_new_D$X1 <- NULL # Remove first column as it determines the order only
@@ -99,13 +123,15 @@ df_design <- data.frame(matrix(0, nrow(df_new_D), length(MONO_COLUMNS)))
 colnames(df_design) <- MONO_COLUMNS
 df_design[,non_const_columns] <- df_new_D[,non_const_columns]
 
-# 5.b) Find food proportions for each design (considering additive model)
+# 5.B) Find food proportions for each design (considering additive model).
+#      TODO: there is alternative way, it is done like this by resolving the LPs
+#            for convenience of coding.
 df_food_proportions <- data.frame(matrix(0, args$num_meals, nrow(df)))
 colnames(df_food_proportions) <- df$uid
 for(i in 1:args$num_meals){
-  df_food_proportions[i,] <- get_proportions(df_data, df_design[i,])
+  df_food_proportions[i,] <- get_proportions(df_food_glycans, df_design[i,])
 }
 
-# 6) Save
+# 6) Save the designed mixed meals
 save_MMs(df_food_proportions, args$output)
-  
+
