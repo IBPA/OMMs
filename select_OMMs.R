@@ -24,6 +24,8 @@ get_args <- function() {
                       help="A .csv file containing the the set of candidate meals to select from.")
   parser$add_argument("--approved-meals", required=FALSE,
                       help="A .csv file containing the the set of approved meals.")
+  parser$add_argument("--compositional", action='store_true', required=FALSE,
+                      help="Transform glycans to compositional values.")
   parser$add_argument("--output", required=TRUE,
                       help="A .csv file containing the selected OMMs where each mixed meal is defined by the individual food proportions that it includes,")
   
@@ -31,7 +33,8 @@ get_args <- function() {
                 "--moistureDB", "./data/% moisture content for all foods.xlsx", 
                 "--candidate-meals", "./results/cand_OMMS.csv",
                 "--approved-meals", "./results/appr_OMMS.csv", 
-                "--num-meals", 10, 
+                "--num-meals", 10,
+                "--compositional",
                 "--output", "./results/sel_OMMs.csv")
 
   if (DEV_MODE){
@@ -43,8 +46,17 @@ get_args <- function() {
 args <- get_args()
 
 # 1) Load data
+# 1.1) Load food data
 df_food_vectors <- load_food_data(args$glycanDB, args$moistureDB)
 rownames(df_food_vectors) <- df_food_vectors$uid
+# 1.2) Transform food data
+if(args$compositional){
+  df_food_vectors[,MONO_COLUMNS] <- df_food_vectors[,MONO_COLUMNS]/rowSums(df_food_vectors[,MONO_COLUMNS])
+  df_food_vectors[is.na(df_food_vectors)] <- 0
+} else {
+  df_food_vectors[,MONO_COLUMNS] <- minmax_normalize(df_food_vectors[,MONO_COLUMNS])
+}
+# 1.3) Load mixed-meal data
 cand_MMs <- load_MMs(args$candidate_meals)
 appr_MMs <- matrix(0,ncol = 1, nrow = 1, dimnames = list(1,df_food_vectors$uid[1])) # just an empty meal
 if (length(args$approved_meals)){
@@ -72,4 +84,3 @@ selected_MMs <- cand_MMs[idx_selected_meals,]
 
 # 6) Save the selected mixed meals
 save_MMs(selected_MMs, args$output)
-

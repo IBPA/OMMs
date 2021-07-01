@@ -19,6 +19,8 @@ get_args <- function() {
                       help="A .xlsx file containing the moisture percentages of individual foods before drying.")
   parser$add_argument("--max-meal-ingredients", type="integer",required=FALSE,
                       help="The maximum number of ingredients in each designed mixed meal.")
+  parser$add_argument("--compositional", action='store_true', required=FALSE,
+                      help="Transform glycans to compositional values.")
   parser$add_argument("--num-meals", type="integer", required=TRUE,
                       help="The number of mixed meals to design.")
   parser$add_argument("--output", required=TRUE,
@@ -28,6 +30,7 @@ get_args <- function() {
                 "--moistureDB", "./data/% moisture content for all foods.xlsx", 
                 "--num-meals", 50,
                 "--max-meal-ingredients", 5,
+                "--compositional",
                 "--output", "./results/gen_OMMS.csv")
   if (DEV_MODE){
     return(parser$parse_args(testargs))
@@ -77,7 +80,12 @@ args <- get_args()
 
 # 1) Load food data
 df <- load_food_data(args$glycanDB, args$moistureDB)
-df[,MONO_COLUMNS] <- minmax_normalize(df[,MONO_COLUMNS])
+if(args$compositional){
+  df[,MONO_COLUMNS] <- df[,MONO_COLUMNS]/rowSums(df[,MONO_COLUMNS])
+  df[is.na(df)] <- 0
+} else {
+  df[,MONO_COLUMNS] <- minmax_normalize(df[,MONO_COLUMNS])
+}
 df_food_glycans <- df[,MONO_COLUMNS]
 rownames(df_food_glycans) <- df$uid
 

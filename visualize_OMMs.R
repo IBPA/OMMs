@@ -70,10 +70,24 @@ print(gPlot_bars)
 ggsave("./results/Fig1_B.pdf", gPlot_bars, dpi = 400, width=8 , height = 4)
 ggsave("./results/Fig1_B.png", gPlot_bars, dpi = 400, width=8 , height = 4)
 
+# 3.C) Plot stacked bar-charts of foods (proportions)
+df_food_vectors_vis <- data.frame(df_food_vectors)
+df_food_vectors_vis[is.na(df_food_vectors_vis)] <- 0
+df_food_vectors_vis[df_food_vectors_vis < 0] <- 0
+df_food_vectors_vis$id <- 1:nrow(df_food_vectors_vis)
+df_food_vectors_melt <- melt(df_food_vectors_vis, measure.vars=MONO_COLUMNS, value.name = "Quantity", variable.name = "Glycan")
+gPlot_bars <- ggplot(df_food_vectors_melt, aes(x=id, y=Quantity, fill=Glycan))+
+  geom_bar(stat = "identity", position = "fill")+
+  scale_x_continuous("Food Index")+
+  scale_y_continuous("Glycan %weight per mg of wet sample", labels = scales::percent)+
+  my_base_theme
+print(gPlot_bars)
+ggsave("./results/Fig1_C.pdf", gPlot_bars, dpi = 400, width=8 , height = 4)
+ggsave("./results/Fig1_C.png", gPlot_bars, dpi = 400, width=8 , height = 4)
+
 # 4) Calculate information content iteratively
 df_vectors_all <- data.frame(MM_vectors)
-df_vectors_all <- minmax_normalize(df_vectors_all)
-df_vectors_all <- discretize(df_vectors_all, disc = "equalwidth", nbins = 7)
+df_vectors_all <- discretize(df_vectors_all, disc = "equalwidth", nbins = 20)
 
 infos <- c()
 i_numbers <- 1:nrow(df_vectors_all)
