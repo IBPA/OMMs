@@ -46,7 +46,7 @@ Visualize the expected glycan content of OMMs. *Figure1* will include a stacked 
 For any questions contact Ameen Eetemadi (eetemadi@ucdavis.edu).
 
 ## Licence
-See the [LICENSE](./LICENSE) file for license rights and limitations (Apache2.0).
+See the [LICENSE](./LICENSE) file for license rights and limitations (MIT License).
 
 ## Acknowledgement
 This work was supported by the United States Department of
