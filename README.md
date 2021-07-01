@@ -14,6 +14,7 @@ Design optimal mixed meals (OMMs) to maximize the information content of glycan 
 * `--glycanDB filename.csv`: The glycan content profiles of individual foods when dried. The format is described in [./data/glycanDB_format.txt](./data/glycanDB_format.txt).
 * `--moistureDB filename.xlsx`: The moisture percentages of individual foods before drying. The format is described in [./data/moistureDB_format.txt](./data/moistureDB_format.txt).
 * `--max-meal-ingredients M` (optional): The maximum number of ingredients in each designed mixed meal.
+* `--compositional` (optional): Transform glycan content of each food to compositional values. If not set, glyans will be transformed using minimax normalization for each glycan independently.
 * `--num-meals N`: The number of mixed meals to design.
 * `--output filename.csv`: The designed OMMs where each mixed meal is defined by the individual food proportions that it includes. The format is described in [./data/MMs_format.txt](./data/MMs_format.txt).
 
@@ -28,6 +29,7 @@ Select a set of OMMs from candidate mixed meals, given a set of approved mixed m
 * `--moistureDB filename.xlsx`: The moisture percentages of individual foods before drying. The format is described in [./data/moistureDB_format.txt](./data/moistureDB_format.txt).
 * `--num-meals N`: The number of mixed meals to select.
 * `--approved-meals filename.csv` (optional): The set of approved meals. The format is described in [./data/MMs_format.txt](./data/MMs_format.txt).
+* `--compositional` (optional): Transform glycan content of each food to compositional values. If not set, glyans will be transformed using minimax normalization for each glycan independently.
 * `--candidate-meals filename.csv`: The set of candidate meals to select from. The format is described in [./data/MMs_format.txt](./data/MMs_format.txt).
 * `--output filename.csv`: The selected OMMs where each mixed meal is defined by the individual food proportions that it includes. The format is described in [./data/MMs_format.txt](./data/MMs_format.txt).
 
