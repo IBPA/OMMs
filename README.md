@@ -1,4 +1,4 @@
-# Design Mixed Meals With Heterogeneous Glycan Content
+# Meal Design for Heterogeneous Glycan Content
 Design mixed meals automatically for maximizing the information content of their glycan compositions.
 
 ## Requirements
