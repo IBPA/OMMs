@@ -3,13 +3,15 @@
 
 suppressPackageStartupMessages(library("argparse"))
 library(infotheo)
+library(readxl)
+library(stringr)
 library(ggplot2)
 library(reshape2)
 library(scales)
 
 source("./src/common.R")
 source("./src/theme_util.R")
-DEV_MODE <- TRUE
+DEV_MODE <- FALSE
 
 # Parse and return command line arguments of this script (return defaults if DEV_MODE is TRUE).
 get_args <- function() {
@@ -49,7 +51,7 @@ df_MM$id <- 1:nrow(df_MM)
 df_MM_melt <- melt(df_MM, measure.vars=MONO_COLUMNS, value.name = "Quantity", variable.name = "Glycan")
 gPlot_bars <- ggplot(df_MM_melt, aes(x=id, y=Quantity, fill=Glycan))+
           geom_bar(stat = "identity")+
-          scale_x_continuous("Meal ID")+
+          scale_x_continuous("Meal ids")+
           scale_y_continuous("Glycan weight per mg of wet sample")+
           my_base_theme
 
@@ -63,7 +65,7 @@ df_MM$id <- 1:nrow(df_MM)
 df_MM_melt <- melt(df_MM, measure.vars=MONO_COLUMNS, value.name = "Quantity", variable.name = "Glycan")
 gPlot_bars <- ggplot(df_MM_melt, aes(x=id, y=Quantity, fill=Glycan))+
   geom_bar(stat = "identity", position = "fill")+
-  scale_x_continuous("Meal ID")+
+  scale_x_continuous("Meal ids")+
   scale_y_continuous("Glycan %weight per mg of wet sample", labels = scales::percent)+
   my_base_theme
 print(gPlot_bars)
@@ -102,7 +104,7 @@ df_infos <- data.frame(iter=i_numbers, info=infos)
 gPlot <- ggplot(df_infos, aes(x=iter, y=infos))+
           geom_point(size=.7)+
           geom_line()+
-          scale_x_continuous("Mixed meal ids")+
+          scale_x_continuous("Meal ids")+
           scale_y_continuous("Glycan information content (entropy)", breaks = 0:round(max(df_infos$info)))+
           my_base_theme
 print(gPlot)
@@ -120,3 +122,4 @@ sprintf("Mixed meals use an average %.2f foods.", mean(df_hist$count))
 print(gPlot_hist)
 ggsave("./results/Fig3.pdf", gPlot_hist, dpi = 400, width=8 , height = 4)
 ggsave("./results/Fig3.png", gPlot_hist, dpi = 400, width=8 , height = 4)
+print("Completed Successfully!")

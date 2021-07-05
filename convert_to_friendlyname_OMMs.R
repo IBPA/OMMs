@@ -30,3 +30,4 @@ colnames(MMs) <- get_friendly_food_names(colnames(MMs), args$glycanDB)
 
 # 3) Save
 save_MMs(MMs, args$output_filename)
+print("Completed Successfully!")

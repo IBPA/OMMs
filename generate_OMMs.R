@@ -8,7 +8,7 @@ library(stringr)
 library(gurobi)
 
 source("./src/common.R")
-DEV_MODE <- TRUE
+DEV_MODE <- FALSE
 
 # Parse and return command line arguments of this script (return defaults if DEV_MODE is TRUE).
 get_args <- function() {
@@ -159,4 +159,4 @@ for(i in 1:args$num_meals){
 
 # 7) Save the designed mixed meals
 save_MMs(df_food_proportions, args$output)
-
+print("Completed Successfully!")

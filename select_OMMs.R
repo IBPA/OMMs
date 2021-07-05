@@ -2,14 +2,16 @@
 #' Select a set of OMMs from candidate mixed meals, given a set of approved mixed meals.
 
 suppressPackageStartupMessages(library("argparse"))
-library(infotheo)
+library(MaxPro)
+library(readxl)
+library(stringr)
 library(ggplot2)
 library(reshape2)
 library(scales)
 
 source("./src/common.R")
 source("./src/theme_util.R")
-DEV_MODE <- TRUE
+DEV_MODE <- FALSE
 
 # Parse and return command line arguments of this script (return defaults if DEV_MODE is TRUE).
 get_args <- function() {
@@ -84,3 +86,4 @@ selected_MMs <- cand_MMs[idx_selected_meals,]
 
 # 6) Save the selected mixed meals
 save_MMs(selected_MMs, args$output)
+print("Completed Successfully!")
