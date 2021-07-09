@@ -35,9 +35,13 @@ get_args <- function() {
 
 # source the filename from this script's directory
 source_from_here <- function(filename) {
-  initial.options <- commandArgs(trailingOnly = FALSE)
-  script.name <- sub("--file=", "", initial.options[grep("--file=", initial.options)])
-  source(file.path(dirname(script.name), filename))
+  if (DEV_MODE){
+    source(file.path("R", filename))
+  } else {
+    initial.options <- commandArgs(trailingOnly = FALSE)
+    script.name <- sub("--file=", "", initial.options[grep("--file=", initial.options)])
+    source(file.path(dirname(script.name), filename))
+  }
 }
 source_from_here("common_OMMs.R")
 source_from_here("theme_util_OMMs.R")
