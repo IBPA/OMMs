@@ -9,8 +9,6 @@ library(ggplot2)
 library(reshape2)
 library(scales)
 
-source("common_OMMs.R")
-source("theme_util_OMMs.R")
 DEV_MODE <- FALSE
 
 # Parse and return command line arguments of this script (return defaults if DEV_MODE is TRUE).
@@ -44,6 +42,16 @@ get_args <- function() {
   }
   return(parser$parse_args())
 }
+
+# source the filename from this script's directory
+source_from_here <- function(filename) {
+  initial.options <- commandArgs(trailingOnly = FALSE)
+  script.name <- sub("--file=", "", initial.options[grep("--file=", initial.options)])
+  source(file.path(dirname(script.name), filename))
+}
+source_from_here("common_OMMs.R")
+source_from_here("theme_util_OMMs.R")
+
 
 args <- get_args()
 

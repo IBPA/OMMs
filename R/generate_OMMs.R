@@ -7,7 +7,6 @@ library(readxl)
 library(stringr)
 library(gurobi)
 
-source("common_OMMs.R")
 DEV_MODE <- FALSE
 
 # Parse and return command line arguments of this script (return defaults if DEV_MODE is TRUE).
@@ -75,6 +74,14 @@ get_proportions <- function(df_food_glycans, target_glycans){
   # 5) Return the LP solution. Note, we use the first portion (i.e. 1:n) as the rest represent the minimized errors.
   return(result$x[1:n])
 }
+
+# source the filename from this script's directory
+source_from_here <- function(filename) {
+  initial.options <- commandArgs(trailingOnly = FALSE)
+  script.name <- sub("--file=", "", initial.options[grep("--file=", initial.options)])
+  source(file.path(dirname(script.name), filename))
+}
+source_from_here("common_OMMs.R")
 
 args <- get_args()
 

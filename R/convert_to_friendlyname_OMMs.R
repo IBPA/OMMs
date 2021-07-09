@@ -4,8 +4,6 @@
 suppressPackageStartupMessages(library("argparse"))
 library(stringr)
 
-source("common_OMMs.R")
-
 get_args <- function() {
   parser <- ArgumentParser(description = "Use friendly food names instead of uids for the OMMs.")
   parser$add_argument("--glycanDB", required=TRUE,
@@ -19,6 +17,14 @@ get_args <- function() {
   
   return(args)
 }
+
+# source the filename from this script's directory
+source_from_here <- function(filename) {
+  initial.options <- commandArgs(trailingOnly = FALSE)
+  script.name <- sub("--file=", "", initial.options[grep("--file=", initial.options)])
+  source(file.path(dirname(script.name), filename))
+}
+source_from_here("common_OMMs.R")
 
 args <- get_args()
 
