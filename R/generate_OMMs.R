@@ -7,7 +7,7 @@ library(readxl)
 library(stringr)
 library(gurobi)
 
-source("./src/common.R")
+source("common.R")
 DEV_MODE <- FALSE
 
 # Parse and return command line arguments of this script (return defaults if DEV_MODE is TRUE).
