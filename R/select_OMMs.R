@@ -9,8 +9,8 @@ library(ggplot2)
 library(reshape2)
 library(scales)
 
-source("./src/common.R")
-source("./src/theme_util.R")
+source("common_OMMs.R")
+source("theme_util_OMMs.R")
 DEV_MODE <- FALSE
 
 # Parse and return command line arguments of this script (return defaults if DEV_MODE is TRUE).

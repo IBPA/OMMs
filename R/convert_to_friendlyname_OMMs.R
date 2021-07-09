@@ -4,7 +4,7 @@
 suppressPackageStartupMessages(library("argparse"))
 library(stringr)
 
-source("./src/common.R")
+source("common_OMMs.R")
 
 get_args <- function() {
   parser <- ArgumentParser(description = "Use friendly food names instead of uids for the OMMs.")
