@@ -86,7 +86,7 @@ load_MMs <- function(filename) {
   MMs <- matrix(0, nrow = num_meals, ncol = length(uids), dimnames = list(1:num_meals, uids))
   for (i in 1:num_meals){
     line_cur <- all_lines[[i]]
-    df_cur <- data.frame(str_split(line_cur, ":"))
+    df_cur <- data.frame(str_split(line_cur, ":"), stringsAsFactors = FALSE)
     fids_cur <- unlist(unname(df_cur[1,]))
     proportions_cur <- unname(df_cur[2,])
     MMs[i,fids_cur] <- as.numeric(unlist(proportions_cur))

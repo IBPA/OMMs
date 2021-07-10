@@ -46,7 +46,6 @@ source_from_here <- function(filename) {
 source_from_here("common_OMMs.R")
 source_from_here("theme_util_OMMs.R")
 
-
 args <- get_args()
 
 # 1) Load data
@@ -68,8 +67,8 @@ gPlot_bars <- ggplot(df_MM_melt, aes(x=id, y=Quantity, fill=Glycan))+
           my_base_theme
 
 print(gPlot_bars)
-ggsave("./results/Fig1_A.pdf", gPlot_bars, dpi = 400, width=8 , height = 4)
-ggsave("./results/Fig1_A.png", gPlot_bars, dpi = 400, width=8 , height = 4)
+ggsave(file.path(args$output_dir,"Fig1_A.pdf"), gPlot_bars, dpi = 400, width=8 , height = 4)
+ggsave(file.path(args$output_dir,"Fig1_A.png"), gPlot_bars, dpi = 400, width=8 , height = 4)
 
 # 3.B) Plot stacked bar-charts of mixed meals (proportions)
 df_MM <- data.frame(MM_vectors)
@@ -81,8 +80,8 @@ gPlot_bars <- ggplot(df_MM_melt, aes(x=id, y=Quantity, fill=Glycan))+
   scale_y_continuous("Glycan %weight per mg of wet sample", labels = scales::percent)+
   my_base_theme
 print(gPlot_bars)
-ggsave("./results/Fig1_B.pdf", gPlot_bars, dpi = 400, width=8 , height = 4)
-ggsave("./results/Fig1_B.png", gPlot_bars, dpi = 400, width=8 , height = 4)
+ggsave(file.path(args$output_dir,"Fig1_B.pdf"), gPlot_bars, dpi = 400, width=8 , height = 4)
+ggsave(file.path(args$output_dir,"Fig1_B.png"), gPlot_bars, dpi = 400, width=8 , height = 4)
 
 # 3.C) Plot stacked bar-charts of foods (proportions)
 df_food_vectors_vis <- data.frame(df_food_vectors)
@@ -96,8 +95,8 @@ gPlot_bars <- ggplot(df_food_vectors_melt, aes(x=id, y=Quantity, fill=Glycan))+
   scale_y_continuous("Glycan %weight per mg of wet sample", labels = scales::percent)+
   my_base_theme
 print(gPlot_bars)
-ggsave("./results/Fig1_C.pdf", gPlot_bars, dpi = 400, width=8 , height = 4)
-ggsave("./results/Fig1_C.png", gPlot_bars, dpi = 400, width=8 , height = 4)
+ggsave(file.path(args$output_dir,"Fig1_C.pdf"), gPlot_bars, dpi = 400, width=8 , height = 4)
+ggsave(file.path(args$output_dir,"Fig1_C.png"), gPlot_bars, dpi = 400, width=8 , height = 4)
 
 # 4) Calculate information content iteratively
 df_vectors_all <- data.frame(MM_vectors)
@@ -120,8 +119,8 @@ gPlot <- ggplot(df_infos, aes(x=iter, y=infos))+
           scale_y_continuous("Glycan information content (entropy)", breaks = 0:round(max(df_infos$info)))+
           my_base_theme
 print(gPlot)
-ggsave("./results/Fig2.pdf", gPlot, dpi = 400, width=8 , height = 4)
-ggsave("./results/Fig2.png", gPlot, dpi = 400, width=8 , height = 4)
+ggsave(file.path(args$output_dir,"Fig2.pdf"), gPlot, dpi = 400, width=8 , height = 4)
+ggsave(file.path(args$output_dir,"Fig2.png"), gPlot, dpi = 400, width=8 , height = 4)
 
 # 6) Histogram for number of foods used in the mixed-meals
 df_hist <- data.frame(id=1:nrow(MMs), count = rowSums(MMs!=0))
@@ -132,6 +131,6 @@ gPlot_hist <- ggplot(df_hist, aes(count))+
                 my_base_theme
 sprintf("Mixed meals use an average %.2f foods.", mean(df_hist$count))
 print(gPlot_hist)
-ggsave("./results/Fig3.pdf", gPlot_hist, dpi = 400, width=8 , height = 4)
-ggsave("./results/Fig3.png", gPlot_hist, dpi = 400, width=8 , height = 4)
+ggsave(file.path(args$output_dir,"Fig3.pdf"), gPlot_hist, dpi = 400, width=8 , height = 4)
+ggsave(file.path(args$output_dir,"Fig3.png"), gPlot_hist, dpi = 400, width=8 , height = 4)
 print("Completed Successfully!")
