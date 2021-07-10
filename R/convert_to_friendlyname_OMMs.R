@@ -4,6 +4,7 @@
 suppressPackageStartupMessages(library("argparse"))
 library(stringr)
 
+# Parse and return command line arguments of this script
 get_args <- function() {
   parser <- ArgumentParser(description = "Use friendly food names instead of uids for the OMMs.")
   parser$add_argument("--glycanDB", required=TRUE,
