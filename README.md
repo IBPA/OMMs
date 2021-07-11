@@ -8,7 +8,7 @@ Design mixed meals automatically for maximizing the information content of their
 
 ## Installation
 ### Step1) Install Gurobi
-Install [Gurobi](https://www.gurobi.com/) (version ≥ 9.1). The Gurobi academic licence is free. Then run the following command (ATTENTION: use the location of the Gurobi R package on your system which varies depending on your installation):
+Install [Gurobi](https://www.gurobi.com/) (version ≥ 9.1). The Gurobi academic licence is free. Then run the following command (ATTENTION: use the location of the Gurobi R package on your system which varies depending on your installation):<br>
 `export GUROBI_R_PATH=$HOME/local/gurobi912/linux64/R/gurobi_9.1-2_R_4.0.2.tar.gz`
 
 ### Step2) Install OMMs using conda
