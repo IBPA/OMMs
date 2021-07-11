@@ -12,7 +12,7 @@ Install [Gurobi](https://www.gurobi.com/) (version ≥ 9.1). The Gurobi academic
 `export GUROBI_R_PATH=$HOME/local/gurobi912/linux64/R/gurobi_9.1-2_R_4.0.2.tar.gz`
 
 ### Step2) Install OMMs using conda
-Ensure that you have conda installed (see [miniconda](https://docs.conda.io/en/latest/miniconda.html)), then run:
+Ensure that you have conda installed (see [miniconda](https://docs.conda.io/en/latest/miniconda.html)), then run:<br>
 `conda create -n omms -c conda-forge -c ameenetemady r-omms`<br>
 `conda activate omms`<br>
 `setup_OMMs.R  --gurobi-R-package $GUROBI_R_PATH`
