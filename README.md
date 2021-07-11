@@ -17,7 +17,7 @@ Ensure that you have conda installed (see [miniconda](https://docs.conda.io/en/l
 `conda activate omms`<br>
 
 
-### Step2) Setup OMMs to use Gurobi
+### Step3) Setup OMMs to use Gurobi
 Run: `setup_OMMs.R  --gurobi-R-package $GUROBI_R_PATH`
 
 ## 1. OMM Generation
