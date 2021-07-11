@@ -15,7 +15,10 @@ Install [Gurobi](https://www.gurobi.com/) (version ≥ 9.1). The Gurobi academic
 Ensure that you have conda installed (see [miniconda](https://docs.conda.io/en/latest/miniconda.html)), then run:<br>
 `conda create -n omms -c conda-forge -c ameenetemady r-omms`<br>
 `conda activate omms`<br>
-`setup_OMMs.R  --gurobi-R-package $GUROBI_R_PATH`
+
+
+### Step2) Setup OMMs to use Gurobi
+Run: `setup_OMMs.R  --gurobi-R-package $GUROBI_R_PATH`
 
 ## 1. OMM Generation
 Design optimal mixed meals (OMMs) to maximize the information content of glycan profiles. In other words, in terms of the glycan content, we want the meals to be most different from each other while also being most different from the individual foods. To run, use the following command (change the argument values as needed):
