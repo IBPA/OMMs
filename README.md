@@ -55,6 +55,9 @@ Visualize the expected glycan content of OMMs. *Figure1* will include a stacked 
 * `--OMMs filename.csv`: The OMMs to visualize. The format is described in [./data/MMs_format.txt](./data/MMs_format.txt).
 * `--output-dir dir_path`: The output directory for saving the generated figures.
 
+## Examples
+See [examples.sh](./test/examples.sh). Following a successful installation, you can run `./test/examples.sh`.
+
 ## Support
 For any questions contact Ameen Eetemadi (eetemadi@ucdavis.edu).
 
