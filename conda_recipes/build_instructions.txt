@@ -1,0 +1,22 @@
+# This file includes instructions for building and uploading conda recipes
+# related to this project (r-maxpro and r-omms). Note r-maxpro is a necessary
+# dependency that we use (hence created a conda recipe).
+
+# Install anaconda-clint
+conda install anaconda-client
+
+# Prioritize conda-forge to avoid package conflicts
+conda config --add channels conda-forge
+conda config --set channel_priority strict
+
+# Build skeleton for r-maxpro (this is already done, won't need to be repeated)
+# conda skeleton cran MaxPro
+
+# Build r-maxpro and upload
+conda-build r-maxpro
+anaconda login
+anaconda upload  miniconda3/conda-bld/osx-64/r-maxpro-4.1_2-r35hb9e6c45_0.tar.bz2
+
+# Build r-omms and upload (change version and location as needed)
+conda-build r-omms
+anaconda upload miniconda3/conda-bld/osx-64/r-omms-0.1.4-0.tar.bz2

@@ -1,0 +1,45 @@
+{% set version = "0.1.4" %}
+package:
+  name: r-omms
+  version: {{ version }}
+
+source:
+  - url: https://github.com/IBPA/OMMs/archive/refs/tags/v{{ version }}.zip
+    sha256: 6a669d2cfbc36bcd46671df4d500c8a170fa9da100f21a68e137455a9d6e827c
+
+build:
+  merge_build_host: True  # [win]
+  number: 0
+
+  # This is required to make R link correctly on Linux.
+  rpaths:
+    - lib/R/lib/
+    - lib/
+
+requirements:
+  run:
+    - r-base
+    - r-ggplot2
+    - r-readxl
+    - r-stringr
+    - r-argparse
+    - r-infotheo
+    - r-reshape2
+    - r-maxpro
+    - r-slam
+test:
+  commands:
+    - setup_OMMs.R --help
+    - select_OMMs.R --help
+    - visualize_OMMs.R --help
+
+about:
+  home: https://github.com/IBPA/OMMs/
+
+  license: MIT
+  license_family: MIT
+  summary: 'Design mixed meals automatically for maximizing the information content of their glycan compositions.'
+
+extra:
+  recipe-maintainers:
+    - ameenetemady
